@@ -100,7 +100,7 @@ export function PolicyTestsPage() {
                   <td className="px-4 py-3 font-medium">{test.name}</td>
                   <td className="px-4 py-3">{test.category}</td>
                   <td className="px-4 py-3">{statusBadge(test.status)}</td>
-                  <td className="px-4 py-3">{test.score.toFixed(1)}</td>
+                  <td className="px-4 py-3">{test.score?.toFixed(1) ?? "—"}</td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {new Date(test.createdAt).toLocaleDateString()}
                   </td>
