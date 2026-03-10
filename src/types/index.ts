@@ -10,10 +10,10 @@ export type Policy = {
 
 // status values returned by the API for test runs
 export const TestStatus = {
-  Pending: "PENDING",
-  Running: "RUNNING",
-  Passed: "PASSED",
-  Failed: "FAILED",
+  Pending: "pending",
+  Running: "running",
+  Passed: "passed",
+  Failed: "failed",
 } as const;
 
 export type TestStatus = (typeof TestStatus)[keyof typeof TestStatus];
