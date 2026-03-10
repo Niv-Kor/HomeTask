@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { getTestCases, ApiError } from "@/lib/api";
+import { getTestCases, runTestCase, ApiError } from "@/lib/api";
+import { Play, Loader2 } from "lucide-react";
 import { usePolicy } from "@/hooks/use-policy";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ export function PolicyTestsPage() {
   const [tests, setTests] = useState<TestCase[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [runningTests, setRunningTests] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!policyId) return;
@@ -42,6 +44,30 @@ export function PolicyTestsPage() {
         setLoading(false);
       });
   }, [policyId]);
+
+  async function handleRun(testId: string) {
+    if (!policyId || runningTests.has(testId)) return;
+
+    setRunningTests((prev) => new Set(prev).add(testId));
+
+    try {
+      //replace the old test with the updated one from the API
+      const updatedTest = await runTestCase(policyId, testId);
+      setTests((prev) => prev.map((test) => (test.id === testId ? updatedTest : test)));
+    }
+    catch (err) {
+      const message = err instanceof ApiError ? err.message : "Failed to run test";
+      alert(message);
+    }
+    finally {
+      //remove from running set
+      setRunningTests((prev) => {
+        const next = new Set(prev);
+        next.delete(testId);
+        return next;
+      });
+    }
+  }
 
   if (policyLoading || loading) {
     return (
@@ -91,7 +117,7 @@ export function PolicyTestsPage() {
                 <th className="px-4 py-3 font-medium">Status</th>
                 <th className="px-4 py-3 font-medium">Score</th>
                 <th className="px-4 py-3 font-medium">Created</th>
-                <th className="px-4 py-3 font-medium" />
+                <th className="px-4 py-3 font-medium w-32" />
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -105,7 +131,19 @@ export function PolicyTestsPage() {
                     {new Date(test.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-3">
-                    {/* TODO: add run button */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={runningTests.has(test.id)}
+                      onClick={() => handleRun(test.id)}
+                    >
+                      {runningTests.has(test.id) ? (
+                        <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                      ) : (
+                        <Play className="h-4 w-4 mr-1" />
+                      )}
+                      {runningTests.has(test.id) ? "Running…" : "Run"}
+                    </Button>
                   </td>
                 </tr>
               ))}
