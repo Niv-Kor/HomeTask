@@ -30,8 +30,7 @@ export function usePolicy(id: string | undefined) {
         setLoading(false);
       });
 
-    // FIXME: should probably clean up the request on unmount
-    return () => {};
+    return () => controller.abort();
   }, [id]);
 
   return { policy, loading, error };
