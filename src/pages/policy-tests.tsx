@@ -5,7 +5,7 @@ import { Play, Loader2 } from "lucide-react";
 import { usePolicy } from "@/hooks/use-policy";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { TestStatus, type TestCase } from "@/types";
+import { TestStatus, type TestCase, ERROR_CONFIG, API_ERRORS } from "@/types";
 
 function statusBadge(status: TestStatus) {
   const variant = {
@@ -76,9 +76,18 @@ export function PolicyTestsPage() {
   }
 
   if (error) {
+    const errorConfig = ERROR_CONFIG[error as (typeof API_ERRORS)[keyof typeof API_ERRORS]];
+
     return (
       <div className="py-12 text-center">
-        <p className="text-destructive mb-4">{error}</p>
+        {errorConfig ? (
+          <>
+            <h2 className="text-lg font-semibold mb-1">{errorConfig.title}</h2>
+            <p className="text-muted-foreground mb-4">{errorConfig.description}</p>
+          </>
+        ) : (
+          <p className="text-destructive mb-4">{error}</p>
+        )}
         <Link to="/policies">
           <Button variant="outline">Back to policies</Button>
         </Link>

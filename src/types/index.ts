@@ -39,3 +39,14 @@ export type TestCaseResponse = {
 export type PolicyListResponse = {
   items: Policy[];
 };
+
+export const API_ERRORS = {
+  DRAFT_POLICY: "Cannot test draft policies",
+} as const;
+
+export const ERROR_CONFIG: Record<(typeof API_ERRORS)[keyof typeof API_ERRORS], { title: string; description: string }> = {
+  [API_ERRORS.DRAFT_POLICY]: {
+    title: "Policy not testable",
+    description: "This policy is still in draft. Publish it before running tests.",
+  },
+};
