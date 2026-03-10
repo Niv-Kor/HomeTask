@@ -27,7 +27,7 @@ export type TestCase = {
   expectedSentiment: "positive" | "neutral" | "negative";
   expectedKeywords: string[];
   status: TestStatus;
-  score: number;
+  score?: number;
   agentResponse: string | null;
   createdAt: string;
 };
