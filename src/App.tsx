@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Layout } from "@/components/layout";
 import { PoliciesPage } from "@/pages/policies";
 import { PolicyTestsPage } from "@/pages/policy-tests";
-import { NewTestPage } from "@/pages/new-test";
+import { NewTestPage } from "@/pages/New Test/new-test";
 
 export default function App() {
   return (

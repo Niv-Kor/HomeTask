@@ -18,13 +18,16 @@ export const TestStatus = {
 
 export type TestStatus = (typeof TestStatus)[keyof typeof TestStatus];
 
+export const SENTIMENTS = ["positive", "neutral", "negative"] as const;
+export type Sentiment = (typeof SENTIMENTS)[number];
+
 export type TestCase = {
   id: string;
   name: string;
   policyId: string;
   category: string;
   prompt: string;
-  expectedSentiment: "positive" | "neutral" | "negative";
+  expectedSentiment: Sentiment;
   expectedKeywords: string[];
   status: TestStatus;
   score?: number;
