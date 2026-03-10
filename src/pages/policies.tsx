@@ -33,10 +33,10 @@ export function PoliciesPage() {
       oldest: "name",
       name: "newest",
     };
-    setSortOrder(next[sortOrder]);
+    setSortOrder(prevSortOrder => next[prevSortOrder]);
   });
 
-  const sorted = policies.sort((a, b) => {
+  const sorted = [...policies].sort((a, b) => {
     if (sortOrder === "name") {
       return a.name.localeCompare(b.name);
     }
