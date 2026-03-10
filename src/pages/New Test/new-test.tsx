@@ -32,16 +32,30 @@ export const NewTestPage = () => {
     setSubmitting(true);
     setError(null);
 
+    const optimisticTest = {
+      id: `optimistic-${Date.now()}`,
+      policyId,
+      name: name.trim(),
+      category: category || (policy?.categories[0]?.label ?? "General"),
+      prompt: prompt.trim(),
+      expectedSentiment,
+      expectedKeywords,
+      status: "pending" as const,
+      score: null,
+      agentResponse: null,
+      createdAt: new Date().toISOString(),
+    };
+
+    navigate(`/policies/${policyId}/tests`, { state: { optimisticTest } });
+
     try {
       await createTestCase(policyId, {
-        name: name.trim(),
-        category: category || (policy?.categories[0]?.label ?? "General"),
-        prompt: prompt.trim(),
+        name: optimisticTest.name,
+        category: optimisticTest.category,
+        prompt: optimisticTest.prompt,
         expectedSentiment,
         expectedKeywords,
       });
-      
-      navigate(`/policies/${policyId}/tests`);
     }
     catch (err) {
       const message = err instanceof ApiError ? err.message : "Failed to create test case";

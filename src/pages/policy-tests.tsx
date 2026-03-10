@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useLocation } from "react-router-dom";
 import { getTestCases, runTestCase, ApiError } from "@/lib/api";
 import { Play, Loader2 } from "lucide-react";
 import { usePolicy } from "@/hooks/use-policy";
@@ -21,10 +21,13 @@ const statusBadge = (status: TestStatus) => {
 export function PolicyTestsPage() {
   const { policyId } = useParams<{ policyId: string }>();
   const { policy, loading: policyLoading } = usePolicy(policyId);
+  const location = useLocation();
+  const optimisticTest = (location.state as { optimisticTest?: TestCase })?.optimisticTest;
   const [tests, setTests] = useState<TestCase[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [runningTests, setRunningTests] = useState<Set<string>>(new Set());
+  const [selectedIndex, setSelectedIndex] = useState<number>(-1);
 
   useEffect(() => {
     if (!policyId) return;
@@ -32,9 +35,16 @@ export function PolicyTestsPage() {
     setLoading(true);
     setError(null);
 
+    if (optimisticTest) {
+      setTests([optimisticTest]);
+      setLoading(false);
+    }
+
     getTestCases(policyId)
       .then((data) => {
-        setTests(data);
+        const ids = new Set(data.map((test) => test.id));
+        const extras = optimisticTest && !ids.has(optimisticTest.id) ? [optimisticTest] : [];
+        setTests([...data, ...extras]);
         setLoading(false);
       })
       .catch((err) => {
@@ -44,6 +54,38 @@ export function PolicyTestsPage() {
         setLoading(false);
       });
   }, [policyId]);
+
+  useEffect(() => {
+    if (!tests?.length) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case "ArrowDown":
+          e.preventDefault();
+          setSelectedIndex((prev) => Math.min(prev + 1, tests.length - 1));
+          break;
+
+        case "ArrowUp":
+          e.preventDefault();
+          setSelectedIndex((prev) => Math.max(prev - 1, 0));
+          break;
+
+        case "Enter":
+          if (selectedIndex >= 0) {
+            e.preventDefault();
+            handleRun(tests[selectedIndex].id);
+          }
+          break;
+
+        case "Escape":
+          setSelectedIndex(-1);
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [tests, selectedIndex]);
 
   const handleRun = async (testId: string) => {
     if (!policyId || runningTests.has(testId)) return;
@@ -130,8 +172,14 @@ export function PolicyTestsPage() {
               </tr>
             </thead>
             <tbody className="divide-y">
-              {tests.map((test) => (
-                <tr key={test.id} className="text-sm">
+              {tests.map((test, index) => (
+                <tr
+                  key={test.id}
+                  className={`text-sm cursor-pointer transition-colors ${
+                    index === selectedIndex ? "bg-blue-50 outline-blue-300" : "hover:bg-muted/50"
+                  }`}
+                  onClick={() => setSelectedIndex(index)}
+                >
                   <td className="px-4 py-3 font-medium">{test.name}</td>
                   <td className="px-4 py-3">{test.category}</td>
                   <td className="px-4 py-3">{statusBadge(test.status)}</td>
