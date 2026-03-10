@@ -16,7 +16,7 @@ interface IPromptFieldProps {
 export const PromptField = ({ value, onChange }: IPromptFieldProps) => {
   const promptRef = useRef<HTMLTextAreaElement>(null);
 
-  function insertVariable(varName: string) {
+  const insertVariable = (varName: string) => {
     const textarea = promptRef.current;
     if (!textarea) return;
 

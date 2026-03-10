@@ -19,7 +19,7 @@ export const ExpectedOutcomeField = ({
 }: IExpectedOutcomeFieldProps) => {
   const [keywordInput, setKeywordInput] = useState("");
 
-  function addKeyword() {
+  const addKeyword = () => {
     const trimmed = keywordInput.trim().toLowerCase();
     if (trimmed && !keywords.includes(trimmed)) {
       onKeywordsChange([...keywords, trimmed]);

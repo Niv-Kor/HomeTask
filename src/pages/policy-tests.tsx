@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TestStatus, type TestCase, ERROR_CONFIG, API_ERRORS } from "@/types";
 
-function statusBadge(status: TestStatus) {
+const statusBadge = (status: TestStatus) => {
   const variant = {
     [TestStatus.Pending]: "secondary",
     [TestStatus.Running]: "warning",
@@ -45,7 +45,7 @@ export function PolicyTestsPage() {
       });
   }, [policyId]);
 
-  async function handleRun(testId: string) {
+  const handleRun = async (testId: string) => {
     if (!policyId || runningTests.has(testId)) return;
 
     setRunningTests((prev) => new Set(prev).add(testId));
